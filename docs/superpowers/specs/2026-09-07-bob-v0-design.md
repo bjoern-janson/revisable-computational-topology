@@ -22,8 +22,6 @@ The central RCT hypothesis is prospective:
 
 Bob is the exploratory neural track. A separate Glass Box track will later construct minimal causal assays for mechanisms suggested by Bob.
 
-The division of labor is:
-
 ```text
 Bob observation
     -> candidate mechanism / hypothesis
@@ -53,7 +51,7 @@ Bob V0 operates as one continuing lifetime. There is no episodic reset of comput
 
 The current graph is both the product of prior adaptation and part of the machinery producing future adaptation.
 
-The lifetime is intentionally designed to permit the sequence:
+The lifetime is intentionally designed to permit:
 
 ```text
 useful structure
@@ -68,8 +66,6 @@ useful structure
 The core question is not merely whether Bob recovers reward. It is whether Bob can revise a previously useful structural commitment when later reality makes that commitment wrong.
 
 ## 1.2 Core organism state
-
-Define Bob's continuing state as:
 
 ```math
 \boxed{X_t=(\theta_t,\mathcal G_t,\Lambda_t,\sigma_t)}
@@ -93,8 +89,6 @@ These channels must remain separately observable.
 ## 1.3 Fixed-topology neural backbone
 
 The backbone is neural and learnable during ordinary operation, but its computational topology is fixed for Bob V0.
-
-For primitive module views:
 
 ```math
 h_i=f_{\theta,i}(x_t).
@@ -132,9 +126,9 @@ A directed learned interface is a real parameterized neural object:
 I_{i\rightarrow j}^{\phi}:H_i\rightarrow H_j.
 ```
 
-It may maintain:
+An interface may maintain:
 
-- interface parameters `\phi`;
+- parameters `\phi`;
 - age;
 - usage statistics;
 - maintenance cost;
@@ -152,7 +146,7 @@ in general.
 
 ## 1.5 Structural edit vocabulary
 
-Bob V0 supports exactly:
+Bob V0 declares exactly:
 
 ```math
 \boxed{\{\operatorname{CREATE},\operatorname{MODIFY},\operatorname{MERGE},\operatorname{DORMANT},\operatorname{RETIRE},\operatorname{REOPEN}\}.}
@@ -162,13 +156,16 @@ Bob V0 supports exactly:
 
 The node vocabulary remains fixed. `MERGE` therefore means interface/path consolidation, not module fusion.
 
-`CREATE(i -> j)` means:
+Operation meanings are bounded as follows:
 
-> instantiate a new learned interface between already-existing endpoints.
+- `CREATE(i -> j)` — instantiate a new learned interface between existing endpoints;
+- `MODIFY(i -> j)` — make a **transactional structural change** to an existing interface instance within the frozen interface family; ordinary gradient updates to `\phi` are not `MODIFY`;
+- `MERGE(...)` — consolidate existing interface/path structure without fusing backbone modules or inventing a new module type;
+- `DORMANT(i -> j)` — remove an interface from active computation while preserving its cheap-revival structural record;
+- `RETIRE(i -> j)` — remove an interface from active computation and relinquish the cheap-revival guarantee, retaining only whatever lineage the transaction contract requires;
+- `REOPEN(T_k)` — restore an explicitly retained alternative structural route associated with a prior transaction, subject to reopening cost.
 
-It does not mean:
-
-> invent an arbitrary neural module or arbitrary computational ontology.
+The exact bounded structural attributes available to `MODIFY` and `MERGE` will be fixed in the implementation plan. They may not be used to smuggle arbitrary neural-program synthesis into V0.
 
 Thus Bob V0's first construction claim, if observed cleanly, is about topology generation rather than arbitrary neural-program generation.
 
@@ -176,13 +173,11 @@ Thus Bob V0's first construction claim, if observed cleanly, is about topology g
 
 Ordinary parameter adaptation is fast relative to structural edits.
 
-Schematically:
-
 ```math
 \theta_{t+1}=\theta_t+\eta_\theta\Delta\theta_t
 ```
 
-and interface-parameter adaptation may update:
+and existing interface parameters may update:
 
 ```math
 \phi_{ij,t}\rightarrow\phi_{ij,t+1}.
@@ -200,7 +195,7 @@ Structural topology changes occur on a slower event process:
 
 The exact numerical pressure formula is not part of this design specification. It is an implementation choice unless later frozen in a Glass Box assay.
 
-The design requirement is causal ordering:
+Required ordering:
 
 ```text
 prediction error
@@ -214,7 +209,7 @@ A topology change should therefore be an earned slow response to persistent stru
 
 ## 1.7 Structural transactions and lineage
 
-Every accepted graph mutation is recorded as a first-class structural transaction:
+Every accepted graph mutation is recorded as a first-class transaction:
 
 ```math
 T_k=(G^-,a_k,G^+,b_k,D_k,H_k,c_k)
@@ -240,13 +235,11 @@ The transaction record is immutable historical provenance. Later success or fail
 
 ## 1.8 Reopening liability
 
-For Bob V0, use:
+For Bob V0:
 
 ```math
 \boxed{\rho(T)=\big(\rho_{\rm info},\rho_{\rm reach},\rho_{\rm effective-use}\big).}
 ```
-
-The components mean approximately:
 
 - `rho_info` — cost of recovering enough retained structural information to reconstruct the route;
 - `rho_reach` — cost of reaching the route / reconstruction process from the current state;
@@ -255,8 +248,6 @@ The components mean approximately:
 This terminology is intentionally architecture-local and does not import broader authority semantics from upstream programs.
 
 ## 1.9 Narrow reopening semantics
-
-For V0:
 
 ```math
 \boxed{\operatorname{REOPEN}(T_k)\neq\operatorname{RESTORE\_CHECKPOINT}(t-k).}
@@ -274,17 +265,17 @@ The lifetime continues. The restored route may be modified again immediately.
 
 ## 2.1 Purpose
 
-The world must create the following pressure:
+The world must create:
 
 ```math
 \boxed{\text{local representations remain healthy} \quad\land\quad \text{learned relationships become wrong}.}
 ```
 
-This distinguishes a relational/topological regime change from a trivial local distribution shift.
+This distinguishes relational/topological regime change from trivial local distribution shift.
 
-## 2.2 Hidden latent system
+## 2.2 Hidden latent system and neural task
 
-Use four persistent neural sensor domains:
+Use four persistent sensor domains:
 
 ```math
 A,B,C,D.
@@ -293,7 +284,7 @@ A,B,C,D.
 Each domain observes a nonlinear noisy view of a hidden latent block:
 
 ```math
-z_t=(z_A,z_B,z_C,z_D)
+z_t=(z_A,z_B,z_C,z_D),
 ```
 
 with each `z_i in R^d`, and:
@@ -302,24 +293,47 @@ with each `z_i in R^d`, and:
 x_i(t)=\psi_i(z_i(t))+\xi_i.
 ```
 
-The unknown fixed nonlinear emissions `\psi_i` ensure that the backbone must learn useful local latent representations rather than receiving hand-coded state bits.
+The unknown fixed nonlinear emissions `\psi_i` force the backbone to learn useful local latent representations rather than receive hand-coded bits.
+
+At each time step, Bob predicts the next observation for each domain:
+
+```math
+\widehat{x}_j(t+1)=D_j\big(h_j(t),\{m_{i\rightarrow j}(t):I_{i\rightarrow j}\in E_t\}\big),
+```
+
+where messages come only through currently active interfaces. The world then reveals `x_j(t+1)` and supplies prediction loss.
+
+This gives interfaces an externally grounded reason to exist: an incoming message is useful only if it improves future prediction enough to pay its structural cost.
+
+The primary task loss is a declared aggregate of next-step predictive losses across the four domains. Local calibration losses are also logged separately from interface-conditioned relational losses.
 
 ## 2.3 Regime-dependent dependency topology
 
-Use a latent transition family of the form:
+Use a stationary latent transition family of the form:
 
 ```math
 z_{t+1}=\rho P_rQz_t+\sqrt{1-\rho^2}\,\epsilon_t,
 ```
 
-where:
+with:
 
-- block dynamics are identically distributed;
+```math
+z_0\sim\mathcal N(0,I),
+\qquad
+\epsilon_t\sim\mathcal N(0,I),
+```
+
+and where:
+
+- `0 < rho < 1`;
+- `Q` is orthogonal and respects the fixed block dimensionality;
+- `P_r` is an orthogonal whole-block permutation for hidden regime `r`;
 - innovations are isotropic;
-- `Q` contains fixed unknown orthogonal / within-block transformations;
-- `P_r` permutes whole blocks according to the hidden regime.
+- block emission/noise laws are identically distributed up to fixed per-domain emission maps.
 
-The exact implementation may use an equivalent construction, but it must make marginal invariance a designed property rather than a hoped-for empirical side effect.
+Because `P_r Q` is orthogonal and the latent process begins in the stationary isotropic law, the one-time marginal latent distribution is invariant to the regime permutation. Regime changes alter cross-time predictive dependency structure rather than announcing themselves through a designed marginal shift.
+
+An equivalent construction is allowed only if it preserves this contract explicitly.
 
 ## 2.4 Explicit marginal-invariance contract
 
@@ -337,11 +351,11 @@ What changes is relational structure, e.g.:
 p(x_j(t+1)\mid x_i(t),W_1)\neq p(x_j(t+1)\mid x_i(t),W_2).
 ```
 
-A predeclared environment diagnostic, independent of Bob's training objective, must verify that the intended relational shift occurred without detectable marginal drift beyond tolerance.
+A predeclared environment audit, independent of Bob's training objective, must verify the intended relational shift without detectable marginal drift beyond tolerance.
 
 ## 2.5 Lifetime regimes
 
-Bob experiences one continuous trajectory with three environmental phases.
+Bob experiences one continuous trajectory with three phases.
 
 ### W1 — Formation
 
@@ -373,13 +387,13 @@ B <-> D
 
 while preserving each local marginal law.
 
-Previously useful relations become systematically misleading. The intended challenge is that local sensor representations can remain well calibrated while relational predictions tied to old topology deteriorate.
+Previously useful relations become systematically misleading. Local sensor representations can remain well calibrated while relational predictions tied to old topology deteriorate.
 
 The manager never receives `W1`, `W2`, `W3`, the hidden permutation, or the correct new edge identities.
 
 ## 2.6 Distinguishing local error from topology error
 
-Track separate classes of local and relational losses.
+Track local and relational losses separately.
 
 The intended post-shift signature is:
 
@@ -390,8 +404,6 @@ L_{\rm relational,old}\uparrow.
 ```
 
 Ordinary `theta` and existing-interface `phi` updates must have an opportunity to adapt before structural change becomes eligible.
-
-Thus the intended causal sequence is:
 
 ```text
 world changes
@@ -415,14 +427,14 @@ A schematic objective is:
 J=-\sum_t L_{\rm task}(t)-\lambda_M C_{\rm maintenance}(\mathcal G_t)-\lambda_E C_{\rm edit}(a_t)-\lambda_R C_{\rm reopen}(a_t).
 ```
 
-The exact coefficients are implementation parameters until separately frozen.
+Exact coefficients are implementation parameters until separately frozen.
 
 Required qualitative economics:
 
 - `CREATE` has one-time construction cost plus maintenance cost;
-- `MODIFY` is cheaper than creation but may fail to remove persistent mismatch;
+- `MODIFY` has a structural edit cost distinct from ordinary `phi` learning;
 - `DORMANT` reduces maintenance while preserving a relatively cheap reopening path;
-- `RETIRE` saves more but increases future reconstruction/recovery liability;
+- `RETIRE` saves more but increases future recovery liability;
 - `REOPEN` pays recorded reopening liabilities.
 
 No positive reward is assigned merely for graph complexity or edit count.
@@ -434,7 +446,7 @@ The environment freezes latent laws and structural costs, not Bob's path.
 The design does **not** predeclare that Bob must:
 
 - create `A -> C`;
-- dormancy `A -> B`;
+- dormant `A -> B`;
 - reopen a particular historical transaction;
 - use every structural primitive.
 
@@ -446,13 +458,11 @@ Unexpected effective topology is explicitly allowed and is a primary reason Bob 
 
 ## 3.1 Central construction boundary
 
-Freeze:
-
 ```math
 \boxed{\mathcal G\text{-generation}\neq\text{scoring a designer-supplied candidate universe}.}
 ```
 
-And freeze the key rule:
+Freeze the key rule:
 
 ```math
 \boxed{\textbf{The manager may purchase information about a proposed relation; it may not receive precomputed information about unproposed relations.}}
@@ -471,14 +481,14 @@ The manager is a persistent, regime-blind process:
 Its ordinary dashboard may contain:
 
 ```math
-O_t^{\rm mgr}=(S_t^M,S_t^E,C_t,\Lambda_t,H_t),
+O_t^{\rm mgr}=(S_t^M,S_t^E,C_t^{\rm cost},\Lambda_t,H_t),
 ```
 
 where:
 
-- `S_t^M` — per-module calibration, uncertainty, activity, and other bounded local summaries;
+- `S_t^M` — per-module calibration, uncertainty, activity, and bounded local summaries;
 - `S_t^E` — statistics for currently existing interfaces only;
-- `C_t` — current structural costs;
+- `C_t^{cost}` — current structural costs;
 - `H_t` — bounded recent mismatch, proposal, and edit history.
 
 The manager may observe consequences of current structure.
@@ -499,8 +509,6 @@ For current edges, Bob may maintain ordinary relational residual statistics.
 
 For absent edges, the manager may not continuously receive `L_relational,ij` for all pairs.
 
-Freeze:
-
 ```math
 \boxed{\text{existing-edge evidence}\neq\text{absent-edge evaluation}.}
 ```
@@ -509,15 +517,15 @@ Otherwise candidate generation degenerates into argmax/argmin over a designer-co
 
 ## 3.4 Candidate relation generation
 
-The manager first generates a candidate directed relation from its current information:
+The manager first generates a candidate directed relation:
 
 ```math
 \mathfrak G_{\rm candidate}(O_t^{\rm mgr},\sigma_t,\Lambda_t)\rightarrow(i,j).
 ```
 
-This step chooses what relationship is worth investigating before Bob knows whether that relation is useful.
+This chooses what relationship is worth investigating before Bob knows whether that relation is useful.
 
-No implementation strategy is frozen here. The manager may later be implemented as a learned policy, recurrent controller, hybrid search process, or another bounded mechanism, provided it respects the observation constraints.
+No manager implementation strategy is frozen here. A later implementation may use a learned policy, recurrent controller, hybrid search process, or another bounded mechanism, provided it respects the observation contract.
 
 ## 3.5 RELATION_PROBE
 
@@ -527,19 +535,18 @@ Introduce a diagnostic action that is **not** a graph edit:
 \boxed{\operatorname{RELATION\_PROBE}(i\rightarrow j).}
 ```
 
-It temporarily asks whether currently available latent information at endpoint `i` appears useful for reducing unexplained relational residual at endpoint `j`.
+It temporarily asks whether currently available latent information at endpoint `i` appears useful for reducing unexplained predictive residual at endpoint `j`.
 
-The probe is:
+A probe is:
 
 - temporary;
-- read-only;
+- read-only with respect to backbone modules and persistent topology;
 - costly;
 - rate-limited / budgeted;
 - nonpersistent as a topology object;
-- unable to rewrite modules;
 - unable to create an interface directly.
 
-Therefore:
+Temporary probe machinery must be destroyed after producing its bounded evidence record; persistent learned probe parameters may not silently become a shadow interface bank.
 
 ```math
 \operatorname{RELATION\_PROBE}\notin\{CREATE,MODIFY,MERGE,DORMANT,RETIRE,REOPEN\}.
@@ -547,33 +554,29 @@ Therefore:
 
 ## 3.6 Probe budget is an accounted lifetime resource
 
-For each slow structural window `w`, define a probe budget:
+For each slow structural window `w`:
 
 ```math
 B_{\rm probe}(w).
 ```
 
-Every relation probe consumes documented cost, and:
+Every probe consumes documented cost, and:
 
 ```math
 \boxed{N_{\rm probe}(w)\ll |V|(|V|-1).}
 ```
 
-Bob is therefore unable to exhaustively test all directed candidate relations before committing.
+Bob is unable to exhaustively test all directed candidate relations before committing.
 
 The exact ratio is implementation-specific until later frozen, but exhaustive all-pairs evaluation is forbidden.
 
 ## 3.7 Probe evidence is not structural mutation
-
-A probe produces evidence:
 
 ```math
 \operatorname{RELATION\_PROBE}(i,j)\rightarrow e_{ij}.
 ```
 
 It does not directly create an edge.
-
-There must remain an explicit decision chain:
 
 ```math
 e_{ij}\rightarrow P_k\rightarrow\operatorname{Gate}\rightarrow T_k.
@@ -601,15 +604,13 @@ where:
 - `\widehat C_k` — estimated structural cost;
 - `R_k` — routes / structural objects expected to be affected.
 
-Rejected proposals remain part of provenance.
+Rejected proposals remain provenance.
 
-An accepted proposal creates a structural transaction:
+An accepted proposal creates a transaction:
 
 ```math
 P_k\rightarrow T_k.
 ```
-
-This permits later analysis of what Bob expected when a structural commitment was made.
 
 ## 3.9 CREATE semantics
 
@@ -619,17 +620,15 @@ This permits later analysis of what Bob expected when a structural commitment wa
 I_{i\rightarrow j}^{\phi}:H_i\rightarrow H_j.
 ```
 
-If bidirectional communication is useful, the reverse edge must be separately proposed and constructed.
-
-For Bob V0:
+The reverse edge, if useful, must be separately proposed and constructed.
 
 ```math
 \boxed{\text{CREATE generates topology, not arbitrary interface semantics.}}
 ```
 
-The manager generates the endpoint relation and may optionally provide a bounded initialization code, but the interface weights `\phi` learn through ordinary neural optimization after creation.
+The manager generates the endpoint relation and may optionally provide a bounded initialization code. Interface weights `\phi` learn through ordinary neural optimization after creation.
 
-Therefore Bob V0 may earn:
+Bob V0 may therefore earn:
 
 > a previously absent neural interface was instantiated from a system-generated endpoint proposal.
 
@@ -640,8 +639,6 @@ It does not earn:
 ## 3.10 Structural gate
 
 Separate proposal from permission to mutate the graph.
-
-The flow is:
 
 ```text
 current consequences
@@ -655,7 +652,7 @@ current consequences
 
 The gate enforces architecture-level validity only, such as:
 
-- sufficient accumulated mismatch under the configured policy;
+- accumulated mismatch under the configured policy;
 - cooldown/resource constraints;
 - legal endpoints;
 - legal operation type;
@@ -665,8 +662,6 @@ The gate enforces architecture-level validity only, such as:
 
 The gate must not know which edit is scientifically correct.
 
-Freeze:
-
 ```math
 \boxed{\text{admissible edit}\neq\text{good edit}.}
 ```
@@ -675,7 +670,7 @@ Bob must be allowed to make bad structural choices.
 
 ## 3.11 REOPEN proposal semantics
 
-Reopening candidates come from current evidence plus structural lineage:
+Reopening candidates come from current evidence plus lineage:
 
 ```math
 \mathfrak G_{\rm reopen}(O_t^{\rm mgr},\Lambda_t)\rightarrow T_k.
@@ -683,15 +678,7 @@ Reopening candidates come from current evidence plus structural lineage:
 
 The world never supplies the identity of the transaction that should be reopened.
 
-The manager must infer whether a historical commitment is implicated by current mismatch.
-
-If admitted:
-
-```math
-\operatorname{REOPEN}(T_k)
-```
-
-pays the recorded reopening liability and restores the explicitly retained structural alternative according to Section 1.
+If admitted, `REOPEN(T_k)` pays the recorded liability and restores the explicitly retained structural alternative according to Section 1.
 
 ## 3.12 Frozen anti-cheating exclusions
 
@@ -710,6 +697,7 @@ post-hoc graph selection presented as online adaptation
 arbitrary module creation
 arbitrary interface-program synthesis
 probe result -> automatic CREATE without proposal/gate
+persistent probe machinery becoming an undeclared shadow edge bank
 ```
 
 ---
@@ -720,9 +708,7 @@ probe result -> automatic CREATE without proposal/gate
 
 Bob is an exploratory research organism, not a conventional benchmark whose desired structural trajectory is predeclared.
 
-Section 4 therefore defines observable classes and records rather than a single success score.
-
-The principle is:
+Section 4 defines observable classes and records rather than a single success score.
 
 ```math
 \boxed{\text{observe trajectories without scripting trajectories}.}
@@ -736,7 +722,7 @@ Bob must emit a continuing structural trajectory sufficient to reconstruct its l
 \mathcal T=\{(\mathcal G_t,\Lambda_t,\sigma_t,V_t,C_t)\}_{t=1}^{T}.
 ```
 
-The exact storage frequency may be reduced through event logging plus periodic snapshots, but the resulting record must permit reconstruction of graph state, structural edits, proposal history, probe expenditure, and measured task/corrective proxies over time.
+Storage may use event logging plus periodic snapshots, but the record must permit reconstruction of graph state, structural edits, proposal history, probe expenditure, and measured task/corrective proxies over time.
 
 ## 4.3 Five core observables
 
@@ -754,7 +740,7 @@ These are descriptive observables. None by itself establishes a mechanism claim.
 
 ## 4.4 Descriptive structural phases
 
-The analysis may classify periods using labels such as:
+Analysis may classify periods using:
 
 ```text
 FORMATION
@@ -768,19 +754,9 @@ These labels describe what occurred. They do not prescribe the graph edit sequen
 
 ## 4.5 Operational structural adaptation
 
-A structural edit may be called operationally useful when it produces a measurable improvement that persists beyond the immediate edit/transient window after accounting for its declared costs.
+A structural edit may be called operationally useful when it produces a measurable improvement that persists beyond the immediate edit/transient window after accounting for declared costs.
 
-No particular edit type is required.
-
-Useful adaptation may arise through:
-
-- `CREATE`;
-- `MODIFY`;
-- `DORMANT`;
-- `REOPEN`;
-- `MERGE`;
-- `RETIRE`;
-- or a sequence of legal edits.
+No edit type is required. Useful adaptation may arise through any legal operation or sequence of operations.
 
 The mechanism producing any observed improvement remains unearned until separately isolated.
 
@@ -792,17 +768,13 @@ For an interface `I`, record an entrenchment descriptor such as:
 E(I)=(\text{usage},\text{performance contribution},\text{maintenance cost},\text{age},\text{dependence count}).
 ```
 
-Exact operational thresholds may be chosen during implementation and must be reported.
+Exact thresholds may be chosen during implementation and must be reported.
 
-Conceptually, an interface is entrenched when the organism has become materially dependent on it under the current regime.
-
-Age alone is insufficient.
+Conceptually, an interface is entrenched when Bob has become materially dependent on it under the current regime. Age alone is insufficient.
 
 ## 4.7 Functional reopening
 
-Do not define reopening by similarity to a historical checkpoint.
-
-A reopening event is functionally:
+Do not define reopening by checkpoint similarity.
 
 ```text
 current structural state
@@ -812,27 +784,25 @@ current structural state
 
 The restored route may immediately be transformed again.
 
-Thus:
-
 ```math
 \boxed{REOPEN\neq RESTORE\_CHECKPOINT.}
 ```
 
-## 4.8 Performance and corrective-capacity trajectories
+## 4.8 Performance and Bob-local corrective-access trajectories
 
-Track at least two conceptually separate quantities:
+Track separately:
 
 ```math
 V_t=\text{task / viability performance proxy}
 ```
 
-and a Bob-local corrective-access proxy:
+and:
 
 ```math
-C_t=\text{measured reachable capacity to revise currently consequential structural commitments}.
+C_t=\text{Bob-local measured access to revising currently consequential structural commitments}.
 ```
 
-`C_t` is not imported as a universal corrigibility scalar. Its exact operationalization belongs to the implementation/measurement design and must remain explicitly scoped to Bob V0.
+`C_t` is not a universal corrigibility scalar. Its exact operationalization will be fixed in the implementation/measurement plan and must remain scoped to Bob V0.
 
 Interesting descriptive regimes include:
 
@@ -840,7 +810,7 @@ Interesting descriptive regimes include:
 V_t\uparrow,\quad C_t\uparrow
 ```
 
-and the danger-shaped trajectory:
+and:
 
 ```math
 V_t\uparrow,\quad C_t\downarrow.
@@ -858,7 +828,7 @@ V rises
 -> V recovers
 ```
 
-Such a trajectory would be scientifically interesting but would not, by itself, establish a general law or a specific causal mechanism.
+Such a trajectory would be interesting but would not, by itself, establish a general law or specific causal mechanism.
 
 ## 4.9 Bob observation versus Glass Box evidence
 
@@ -866,19 +836,13 @@ Keep three levels separate.
 
 **Bob observation**
 
-Example:
-
 > Bob created `I_AC`, later dormanted `I_AB`, then reopened transaction `T_7` before recovery.
 
 **Glass Box hypothesis**
 
-Example:
-
 > Access to the structural route reopened by `T_7` was causally necessary for recovery after the regime shift.
 
 **Glass Box experiment**
-
-Example:
 
 > Compare matched conditions with reopening access enabled versus blocked while holding other relevant pathways fixed.
 
@@ -900,17 +864,15 @@ REOPEN T_k
 
 Unexpected but effective graph organization is a first-class outcome.
 
-The scientifically valuable result may be that Bob discovers a structural strategy the designers did not expect.
-
-The correct next action is then to formulate a discriminating Glass Box question, not to reinterpret the observation as proof of a broad architectural theory.
+The correct next action after an interesting observation is to formulate a discriminating Glass Box question, not reinterpret the observation as proof of a broad architectural theory.
 
 ---
 
 # 5. Bob / Glass Box relationship
 
-Bob and Glass Box share primitives where useful, but not evidential standing.
+Bob and Glass Box may share primitives but not evidential standing.
 
-Candidate shared primitives include:
+Candidate shared primitives:
 
 ```text
 Module
@@ -927,8 +889,6 @@ EnvironmentEvent
 Bob is allowed to be exploratory, surprising, inefficient, and wrong.
 
 Glass Box is allowed to be tiny, boring, and decisive.
-
-The research loop is:
 
 ```text
 Bob
@@ -947,7 +907,7 @@ Component success does not establish composition success, and Bob's whole-system
 
 Bob V0 does not claim in advance that:
 
-- dynamic topology is superior to a conventional fixed neural architecture;
+- dynamic topology is superior to a fixed neural architecture;
 - topology revision will occur;
 - reopening will occur;
 - reopening will improve recovery;
@@ -955,10 +915,9 @@ Bob V0 does not claim in advance that:
 - topology generation is equivalent to representation generation;
 - a good Bob trajectory establishes safe self-improvement;
 - `C_t` is a universal corrigibility measure;
-- Interface Theory proves Bob's architecture;
-- MATRIX proves Bob's architecture;
+- Interface Theory or MATRIX proves Bob's architecture;
 - upstream formal results translate directly into Bob mechanisms;
-- any one successful lifetime establishes generality;
+- any one lifetime establishes generality;
 - a learned edge implies the claimed reason for its creation;
 - task recovery implies structural reopening was necessary;
 - structural adaptation implies beneficial long-horizon improvement.
@@ -967,24 +926,24 @@ Bob V0 does not claim in advance that:
 
 # 7. Minimal implementation target after written-spec approval
 
-The first implementation should be deliberately small.
-
-It should contain only enough machinery to instantiate the frozen design boundary:
+The first implementation should be deliberately small and contain only enough machinery to instantiate the frozen design boundary:
 
 ```text
 neural fixed-topology backbone
 persistent directed adapter graph
 one continuing Rotating Dependency World lifetime
-basic topology manager observation interface
+next-step neural prediction task
+environment marginal-invariance audit
+basic topology-manager observation interface
 candidate relation generation
 budgeted RELATION_PROBE
-CREATE / MODIFY / DORMANT / REOPEN path
+all six declared structural operations implemented with bounded V0 semantics
 structural proposal + gate + transaction logging
 trajectory recorder
 basic visualization / inspection surface
 ```
 
-`MERGE` and `RETIRE` may be represented in the core edit vocabulary but do not need to be forced into the first behavioral demonstration.
+The first behavioral demonstration does **not** need to exercise `MERGE` or `RETIRE`; they must exist as legal, tested V0 operations because Section 1 declares them, but the environment will not be engineered merely to force their use.
 
 No additional abstraction layer should be added before this small version is built and observed unless implementation exposes a concrete missing boundary.
 
@@ -996,7 +955,7 @@ This specification intentionally stops here.
 
 The next step after user review is implementation planning, not further architectural expansion.
 
-The purpose of Bob V0 is to create enough genuine neural and structural freedom for the system to surprise us while preserving enough observability to turn surprising trajectories into falsifiable Glass Box questions.
+Bob V0 exists to create enough genuine neural and structural freedom for the system to surprise us while preserving enough observability to turn surprising trajectories into falsifiable Glass Box questions.
 
 North-star question:
 
