@@ -103,7 +103,7 @@ The parameters may learn:
 while:
 
 ```math
-\operatorname{Topology}(f_\theta)=\text{fixed}.
+\mathrm{Topology}(f_\theta)=\text{fixed}.
 ```
 
 The purpose is to preserve an attribution seam between ordinary representation learning and structural topology change.
@@ -149,7 +149,7 @@ in general.
 Bob V0 declares exactly:
 
 ```math
-\boxed{\{\operatorname{CREATE},\operatorname{MODIFY},\operatorname{MERGE},\operatorname{DORMANT},\operatorname{RETIRE},\operatorname{REOPEN}\}.}
+\boxed{\{\mathrm{CREATE},\mathrm{MODIFY},\mathrm{MERGE},\mathrm{DORMANT},\mathrm{RETIRE},\mathrm{REOPEN}\}.}
 ```
 
 `SPLIT` is intentionally excluded from V0.
@@ -188,7 +188,7 @@ Structural topology changes occur on a slower event process:
 ```math
 \mathcal G_{t+1}=
 \begin{cases}
-\operatorname{Edit}(\mathcal G_t,a_t), & \text{if the structural gate admits an edit},\\
+\mathrm{Edit}(\mathcal G_t,a_t), & \text{if the structural gate admits an edit},\\
 \mathcal G_t, & \text{otherwise}.
 \end{cases}
 ```
@@ -250,7 +250,7 @@ This terminology is intentionally architecture-local and does not import broader
 ## 1.9 Narrow reopening semantics
 
 ```math
-\boxed{\operatorname{REOPEN}(T_k)\neq\operatorname{RESTORE\_CHECKPOINT}(t-k).}
+\boxed{\mathrm{REOPEN}(T_k)\neq\mathrm{RESTORE\_CHECKPOINT}(t-k).}
 ```
 
 Reopening means:
@@ -532,7 +532,7 @@ No manager implementation strategy is frozen here. A later implementation may us
 Introduce a diagnostic action that is **not** a graph edit:
 
 ```math
-\boxed{\operatorname{RELATION\_PROBE}(i\rightarrow j).}
+\boxed{\mathrm{RELATION\_PROBE}(i\rightarrow j).}
 ```
 
 It temporarily asks whether currently available latent information at endpoint `i` appears useful for reducing unexplained predictive residual at endpoint `j`.
@@ -549,7 +549,7 @@ A probe is:
 Temporary probe machinery must be destroyed after producing its bounded evidence record; persistent learned probe parameters may not silently become a shadow interface bank.
 
 ```math
-\operatorname{RELATION\_PROBE}\notin\{CREATE,MODIFY,MERGE,DORMANT,RETIRE,REOPEN\}.
+\mathrm{RELATION\_PROBE}\notin\{CREATE,MODIFY,MERGE,DORMANT,RETIRE,REOPEN\}.
 ```
 
 ## 3.6 Probe budget is an accounted lifetime resource
@@ -573,13 +573,13 @@ The exact ratio is implementation-specific until later frozen, but exhaustive al
 ## 3.7 Probe evidence is not structural mutation
 
 ```math
-\operatorname{RELATION\_PROBE}(i,j)\rightarrow e_{ij}.
+\mathrm{RELATION\_PROBE}(i,j)\rightarrow e_{ij}.
 ```
 
 It does not directly create an edge.
 
 ```math
-e_{ij}\rightarrow P_k\rightarrow\operatorname{Gate}\rightarrow T_k.
+e_{ij}\rightarrow P_k\rightarrow\mathrm{Gate}\rightarrow T_k.
 ```
 
 Freeze:
@@ -717,7 +717,6 @@ Section 4 defines observable classes and records rather than a single success sc
 ## 4.2 Structural trajectory record
 
 Bob must emit a continuing structural trajectory sufficient to reconstruct its life:
-
 ```math
 \mathcal T=\{(\mathcal G_t,\Lambda_t,\sigma_t,V_t,C_t)\}_{t=1}^{T}.
 ```
