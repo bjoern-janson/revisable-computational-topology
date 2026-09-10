@@ -1,0 +1,75 @@
+name: bob-mk-ii-first-lifetime
+
+on:
+  push:
+    branches:
+      - run/bob-mk-ii-first-lifetime
+    paths:
+      - .github/workflows/bob-mk-ii-first-lifetime.yml
+
+permissions:
+  contents: read
+
+jobs:
+  scientific-lifetime:
+    if: github.event.head_commit.message == 'run: execute first Bob Mk II scientific lifetime'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout exact terminal implementation
+        uses: actions/checkout@v4
+        with:
+          ref: 095505276faf0faaad02d71241f1d881999396f8
+          fetch-depth: 1
+          clean: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install declared environment
+        run: pip install -e '.[dev]'
+
+      - name: Verify exact implementation and tests
+        run: |
+          test "$(git rev-parse HEAD)" = "095505276faf0faaad02d71241f1d881999396f8"
+          git diff --exit-code -- src pyproject.toml
+          pytest -q
+          python -m rct.bob.cli audit-world >/tmp/bob-mk-ii-environment-audit.json
+
+      - name: Execute authorized first scientific lifetime
+        run: |
+          python -m rct.bob.cli run \
+            --execute-lifetime \
+            --design-commit 716118147c5ec8925eaa1c3ddc3b5f500eb51c29 \
+            --implementation-commit 095505276faf0faaad02d71241f1d881999396f8 \
+            --authorization-token AUTH-USER-20260910-FIRST-LIFETIME \
+            --output-dir "${RUNNER_TEMP}/scientific_run"
+
+      - name: Record post-run custody
+        if: always()
+        run: |
+          mkdir -p "${RUNNER_TEMP}/scientific_run"
+          cp /tmp/bob-mk-ii-environment-audit.json "${RUNNER_TEMP}/scientific_run/environment_audit.json" 2>/dev/null || true
+          git rev-parse HEAD > "${RUNNER_TEMP}/scientific_run/implementation_sha.txt"
+          python --version > "${RUNNER_TEMP}/scientific_run/python_version.txt" 2>&1
+          python -m pip freeze > "${RUNNER_TEMP}/scientific_run/environment_freeze.txt"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from rct.bob.config import WorldConfig
+          from rct.bob.world import RotatingDependencyWorld
+          out = Path(__import__('os').environ['RUNNER_TEMP']) / 'scientific_run'
+          world = RotatingDependencyWorld(WorldConfig())
+          (out / 'private_schedule.json').write_text(json.dumps({'phase_lengths': world.phase_lengths, 'total_steps': world.total_steps}, sort_keys=True) + '\n')
+          PY
+
+      - name: Upload scientific custody artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bob-mk-ii-first-lifetime-custody
+          path: ${{ runner.temp }}/scientific_run
+          if-no-files-found: warn
+          retention-days: 90
