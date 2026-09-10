@@ -1,0 +1,106 @@
+{
+  "schema": "bob-mk-ii-chat-handoff/v1",
+  "date": "2026-09-11",
+  "repository": "bjoern-janson/revisable-computational-topology",
+  "standing": {
+    "lifetime_001": "EXECUTED_INTERPRETED_UPSTREAM_HANDOFF_FAILURE",
+    "warrant_repair": "IMPLEMENTED_AND_CI_VERIFIED",
+    "repair_prefix_replay": "ENGINEERING_REPLAY_PASS_NOT_FRESH_SCIENCE",
+    "lifetime_002_authorized": false,
+    "lifetime_002_executed": false,
+    "future_access_valuation_tested": false
+  },
+  "lineage": {
+    "mk_i_original_docs_base": "7996daff3269da8e6e383cccd305eee990fead1a",
+    "mk_i_repaired_design": "deb0fd205b395684531720cdd0a2cd16b9f10ae0",
+    "mk_i_repaired_plan_terminal": "37f8b3df554ddffcfdf4b17a51b3fd703294ae78",
+    "mk_ii_design": "716118147c5ec8925eaa1c3ddc3b5f500eb51c29",
+    "mk_ii_base_implementation_plan": "2259c818db9f911e14b7bb3a519fb684cba023b4",
+    "mk_ii_terminal_plan": "38cdaebdc9ad6dec3fc1a4d4c9b279a73ad1c0a6",
+    "lifetime_001_implementation": "095505276faf0faaad02d71241f1d881999396f8",
+    "lifetime_001_result": "660774a0154dc184d1896ee76dc4a441d18cae23",
+    "warrant_repair_implementation": "e3be1166ac0a6e7d4abde7856a6d9d53719410fb",
+    "warrant_repair_replay_result": "6b9e58356aca1bc0e5f014ab5c4d33878bc08a05"
+  },
+  "branches": {
+    "lifetime_001_result": "result/bob-mk-ii-lifetime-001",
+    "warrant_repair": "repair/bob-mk-ii-probe-warrant-continuity",
+    "repair_replay_result": "result/bob-mk-ii-warrant-repair-replay",
+    "handoff_archive": "archive/bob-mk-ii-handoff-2026-09-11"
+  },
+  "lifetime_001": {
+    "authorization": "AUTH-USER-20260910-FIRST-LIFETIME",
+    "world_schedule": {"W1": 2476, "W2": 2478, "W3": 1632},
+    "rows": 6586,
+    "manager_decisions": 102,
+    "action_counts": {"ABSTAIN": 100, "PROBE": 2},
+    "structural_transactions": 0,
+    "max_active_edges": 0,
+    "max_route_count": 0,
+    "matured_decisions_terminal": 98,
+    "pending_decisions_terminal": 4,
+    "probe_steps": [575, 4863],
+    "raw_trajectory": {
+      "sha256": "b955334bc4c1129dca7fbb0ee8f6c3d5246b760f96cad6e2db185bccac95cf7e",
+      "bytes": 10396380,
+      "deterministic_gzip_sha256": "23b201977545e3839bcaddcf58d0f9ba793047348bdcffe78d83876c65460f2e",
+      "deterministic_gzip_bytes": 526423,
+      "chatgpt_library_path": "/Research/RCT/Bob-Mk-II/2026-09-11-handoff/lifetime-001-trajectory.jsonl.gz",
+      "github_raw_bytes_embedded": false,
+      "note": "GitHub connector available in this chat accepts repository text writes but not local binary file upload. Raw identity is frozen by hash; compressed bytes were additionally persisted to ChatGPT Library."
+    },
+    "claim": "DETECT_GENERATE_TO_QUERY_OCCASIONAL_SUCCESS_QUERY_TO_STRUCTURAL_ACT_FAILURE",
+    "not_a_test_of": "LEARNED_FUTURE_CORRECTIVE_ACCESS_VALUATION"
+  },
+  "warrant_repair": {
+    "question": "Can a legally purchased diagnostic preserve its acquisition warrant long enough to be acted upon?",
+    "contract": "qualified PROBE -> typed ProbeAcquisitionWarrant -> ProbeEvidence(warrant_ref) -> CREATE while matching evidence+warrant remain fresh; successful CREATE consumes both",
+    "files_changed": [
+      "src/rct/bob/gate.py",
+      "src/rct/bob/lifetime.py",
+      "src/rct/bob/probe.py",
+      "src/rct/bob/types.py",
+      "src/rct/bob/warrant.py",
+      "tests/test_gate.py",
+      "tests/test_probe.py",
+      "tests/test_probe_warrant_continuity.py"
+    ],
+    "ci": {"tests_passed": 86, "tests_failed": 0, "validate": "SOFTWARE_CONFORMANCE_ONLY steps=8 scientific_result=NONE"},
+    "intentionally_unchanged": ["world", "38-feature schema", "valuation learner", "candidate generator", "costs", "exploration schedule", "action vocabulary", "one-action-per-boundary sequencing"]
+  },
+  "repair_prefix_replay": {
+    "rows": 640,
+    "range": "0..639",
+    "fresh_science": false,
+    "raw_trajectory": {
+      "sha256": "b067eea11a257310332eecd13bf59ef18d0bb74d11ea1e76cdc408fd3a38b0b2",
+      "bytes": 903530,
+      "deterministic_gzip_sha256": "708b7c99dadfb85d7954ab8770f9a81cefcb556844b3538d1a88f76b6438dc31",
+      "deterministic_gzip_bytes": 50330,
+      "chatgpt_library_path": "/Research/RCT/Bob-Mk-II/2026-09-11-handoff/warrant-repair-prefix-replay-trajectory.jsonl.gz",
+      "github_raw_bytes_embedded": false
+    },
+    "step_575": "PROBE:A->D produced E000001 and W000001",
+    "step_639": "CREATE:A->D:E000001 formable and selected; T000001; active_edges=1; evidence+warrant consumed",
+    "claim": "SPECIFIC_TEMPORAL_HANDOFF_OBSTRUCTION_REMOVED_UNDER_SAME_SEED_ENGINEERING_PREFIX_REPLAY"
+  },
+  "open_obstructions": [
+    "Probe candidate aliasing: at Lifetime-001 step 575 PROBE:C->D and PROBE:A->D had identical 38-coordinate features/scores; deterministic tie-break selected A->D although audit-private W1 pairing was C-D.",
+    "Candidate generation omission: at step 4863 the useful audit-private D->C relation was absent from the generated candidate set.",
+    "CorrectionOutcome exact prospective baseline/evaluation-window contract remains unfrozen."
+  ],
+  "next_legal_action": {
+    "action": "fresh full W1->W2->W3 Lifetime 002",
+    "implementation_sha": "e3be1166ac0a6e7d4abde7856a6d9d53719410fb",
+    "requires_new_explicit_user_authorization": true,
+    "suggested_phrase": "authorized lifetime 002",
+    "must_not_reuse_authorization": "AUTH-USER-20260910-FIRST-LIFETIME"
+  },
+  "canonical_docs": [
+    "docs/status/BOB_MK_II_CHAT_HANDOFF_2026-09-11.md",
+    "docs/results/2026-09-10-bob-mk-ii-lifetime-001.md",
+    "docs/results/2026-09-10-bob-mk-ii-probe-warrant-repair-replay.md",
+    "results/archive/BOB_MK_II_CRITICAL_ROWS.json",
+    "results/archive/BOB_MK_II_HANDOFF_MANIFEST.json"
+  ]
+}
