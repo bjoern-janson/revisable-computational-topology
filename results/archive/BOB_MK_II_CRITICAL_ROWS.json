@@ -1,0 +1,108 @@
+{
+  "standing": "DERIVED_CUSTODY_EXTRACT_NOT_RAW_TRAJECTORY",
+  "lifetime_001_raw_sha256": "b955334bc4c1129dca7fbb0ee8f6c3d5246b760f96cad6e2db185bccac95cf7e",
+  "repair_replay_raw_sha256": "b067eea11a257310332eecd13bf59ef18d0bb74d11ea1e76cdc408fd3a38b0b2",
+  "lifetime_001": {
+    "575": {
+      "loss": 0.7554714679718018,
+      "local_loss": 0.7367467880249023,
+      "chosen_candidate": "PROBE:A->D",
+      "decision_id": "D000008",
+      "decision_mode": "GREEDY",
+      "eligible_candidates": ["PROBE:C->D", "PROBE:A->D", "ABSTAIN"],
+      "candidate_scores": {"ABSTAIN": -209.16403351315915, "PROBE:A->D": -146.92291422887894, "PROBE:C->D": -146.92291422887894},
+      "probe_cost": 0.02,
+      "edit_cost": 0.0,
+      "active_edges": 0,
+      "route_count": 0,
+      "evidence_id": "E000001",
+      "matured_decisions": 5,
+      "pending_decisions": 4
+    },
+    "639": {
+      "loss": 0.7602523565292358,
+      "local_loss": 0.7353167533874512,
+      "chosen_candidate": "ABSTAIN",
+      "decision_id": "D000009",
+      "decision_mode": "GREEDY",
+      "eligible_candidates": ["ABSTAIN"],
+      "candidate_scores": {"ABSTAIN": -208.9259492051704},
+      "active_edges": 0,
+      "route_count": 0,
+      "matured_decisions": 6,
+      "pending_decisions": 4
+    },
+    "4863": {
+      "loss": 0.6984132528305054,
+      "local_loss": 0.6844993829727173,
+      "chosen_candidate": "PROBE:B->C",
+      "decision_id": "D000075",
+      "decision_mode": "GREEDY",
+      "eligible_candidates": ["PROBE:A->C", "PROBE:B->C", "ABSTAIN"],
+      "candidate_scores": {"ABSTAIN": -193.17647735552535, "PROBE:A->C": -188.85963957269473, "PROBE:B->C": -188.85963957269473},
+      "probe_cost": 0.02,
+      "active_edges": 0,
+      "route_count": 0,
+      "evidence_id": "E000002",
+      "matured_decisions": 72,
+      "pending_decisions": 4
+    },
+    "4927": {
+      "loss": 0.4742871820926666,
+      "local_loss": 0.48435768485069275,
+      "chosen_candidate": "ABSTAIN",
+      "decision_id": "D000076",
+      "decision_mode": "GREEDY",
+      "eligible_candidates": ["ABSTAIN"],
+      "candidate_scores": {"ABSTAIN": -191.9842023525026},
+      "active_edges": 0,
+      "route_count": 0,
+      "matured_decisions": 73,
+      "pending_decisions": 4
+    },
+    "6585": {
+      "loss": 0.9043053388595581,
+      "local_loss": 0.9010584354400635,
+      "active_edges": 0,
+      "route_count": 0,
+      "matured_decisions": 98,
+      "pending_decisions": 4
+    }
+  },
+  "repair_prefix_replay": {
+    "575": {
+      "loss": 0.7554714679718018,
+      "local_loss": 0.7367467880249023,
+      "chosen_candidate": "PROBE:A->D",
+      "decision_id": "D000008",
+      "decision_mode": "GREEDY",
+      "eligible_candidates": ["PROBE:C->D", "PROBE:A->D", "ABSTAIN"],
+      "candidate_scores": {"ABSTAIN": -209.16403351315915, "PROBE:A->D": -146.92291422887894, "PROBE:C->D": -146.92291422887894},
+      "probe_cost": 0.02,
+      "active_edges": 0,
+      "route_count": 0,
+      "evidence_id": "E000001",
+      "acquisition_warrant_id": "W000001"
+    },
+    "639": {
+      "loss": 0.7602523565292358,
+      "local_loss": 0.7353167533874512,
+      "chosen_candidate": "CREATE:A->D:E000001",
+      "decision_id": "D000009",
+      "decision_mode": "GREEDY",
+      "eligible_candidates": ["CREATE:A->D:E000001", "ABSTAIN"],
+      "candidate_scores": {"ABSTAIN": -209.7752416816142, "CREATE:A->D:E000001": -167.31061785942524},
+      "edit_cost": 0.25,
+      "active_edges": 1,
+      "route_count": 0,
+      "proposal_id": "P000009",
+      "gate_reason": "FORMABLE",
+      "gate_allowed": true,
+      "transaction_id": "T000001",
+      "evidence_id": "E000001",
+      "evidence_consumed": true,
+      "warrant_id": "W000001",
+      "warrant_consumed": true
+    }
+  }
+}
