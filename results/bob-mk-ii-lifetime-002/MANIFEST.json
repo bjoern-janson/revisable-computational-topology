@@ -1,0 +1,46 @@
+{
+  "schema": "rct/bob-mk-ii-lifetime-result/v1",
+  "result_id": "bob-mk-ii-lifetime-002",
+  "date": "2026-09-11",
+  "standing": "EXECUTION_INCOMPLETE_SCIENTIFIC_INTERPRETATION_PROHIBITED",
+  "design_commit": "716118147c5ec8925eaa1c3ddc3b5f500eb51c29",
+  "implementation_commit": "e3be1166ac0a6e7d4abde7856a6d9d53719410fb",
+  "authorization_id": "AUTH-USER-20260911-LIFETIME-002",
+  "preflight": {
+    "tests_passed": 86,
+    "software_conformance": "PASS",
+    "environment_scope": "ENVIRONMENT_OPPORTUNITY_ONLY",
+    "environment_bob_executed": false,
+    "min_partner_prediction_gain": 0.073279857880927,
+    "required_gain_threshold": 0.02
+  },
+  "attempt_1": {
+    "termination": "HOST_WALL_CLOCK_TIMEOUT",
+    "rows": 1688,
+    "last_step": 1687,
+    "bytes": 2745751,
+    "sha256": "d8e0f9e760d32911e4ce07a1b22c7f14f68bfa333bc2ff968ac7b1852eb85d18",
+    "deterministic_gzip_bytes": 136682,
+    "deterministic_gzip_sha256": "ccdbda4b0489d50efbefa056f8cd430d866c468106639842e52f9dd89c6dc5de"
+  },
+  "recovery_gate": "FIRST_1688_ROWS_MUST_BE_BYTE_IDENTICAL_OR_STOP",
+  "recovery_gate_result": "FAIL",
+  "first_replay_difference": {
+    "step": 639,
+    "keys": ["parameter_fingerprint"],
+    "attempt_1_parameter_fingerprint": "08469697ddaf6ff9a5609f7d9e1869e031dbfddb1b4a8aaa5584c032e16107c8",
+    "attempt_2_parameter_fingerprint": "8f817e54b953cef9f5537380bcdb72c32227251acbfb17b62e79d8a5617b0b93",
+    "discrete_projection_sha256_both": "1f077dfd2109bcb2b03ac37aeeb4204d0a7316f550226bf940be2491eb0e3f9a"
+  },
+  "attempt_2": {
+    "termination": "STOPPED_ON_FAILED_BITWISE_RECOVERY_GATE",
+    "rows_at_termination": 3633,
+    "bytes": 6231555,
+    "sha256": "35e55aea3c6a0f5dd019d2879162fcd14de383eac13be8745def71691809d541",
+    "deterministic_gzip_bytes": 297731,
+    "deterministic_gzip_sha256": "49d355b675947e2b99d400984232b49a0556f6809c694d69cbc430614be70190"
+  },
+  "localized_reproducibility_defect": "UNSEEDED_PROCESS_GLOBAL_TORCH_RNG_USED_FOR_NEW_LOWRANK_INTERFACE_FACTORS",
+  "scientific_result": "NONE",
+  "claim_ceiling": "EXECUTION_INFRASTRUCTURE_AND_REPRODUCIBILITY_FAILURE_ONLY; FUTURE_ACCESS_VALUATION_NOT_INTERPRETABLE"
+}
