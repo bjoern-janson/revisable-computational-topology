@@ -1,0 +1,44 @@
+{
+  "schema": "rct/bob-mk-ii-lifetime-result/v1",
+  "result_id": "bob-mk-ii-lifetime-001",
+  "date": "2026-09-10",
+  "standing": "EXECUTED_INTERPRETED_UPSTREAM_HANDOFF_FAILURE",
+  "design_commit": "716118147c5ec8925eaa1c3ddc3b5f500eb51c29",
+  "implementation_commit": "095505276faf0faaad02d71241f1d881999396f8",
+  "authorization_id": "AUTH-USER-20260910-FIRST-LIFETIME",
+  "exit_code": 0,
+  "world_phase_lengths": {
+    "W1": 2476,
+    "W2": 2478,
+    "W3": 1632
+  },
+  "trajectory": {
+    "format": "jsonl",
+    "rows": 6586,
+    "bytes": 10396380,
+    "sha256": "b955334bc4c1129dca7fbb0ee8f6c3d5246b760f96cad6e2db185bccac95cf7e",
+    "deterministic_gzip": {
+      "command": "gzip -n -9",
+      "bytes": 526423,
+      "sha256": "23b201977545e3839bcaddcf58d0f9ba793047348bdcffe78d83876c65460f2e"
+    }
+  },
+  "terminal_counts": {
+    "manager_decisions": 102,
+    "abstain": 100,
+    "probe": 2,
+    "structural_transactions": 0,
+    "max_active_edges": 0,
+    "max_route_count": 0,
+    "matured_decisions": 98,
+    "pending_decisions": 4
+  },
+  "probe_steps": [575, 4863],
+  "mean_full_task_loss": {
+    "W1": 0.7789260341224647,
+    "W2": 0.7287719342331428,
+    "W3": 0.7206823990917673
+  },
+  "claim_ceiling": "UPSTREAM_GENERATION_DETECTION_WARRANT_COMPOSITION_FAILURE; FUTURE_ACCESS_VALUATION_NOT_TESTED",
+  "raw_trajectory_repository_storage": "NOT_EMBEDDED_IN_GIT; identity frozen by sha256 and retained as the original conversation artifact"
+}
