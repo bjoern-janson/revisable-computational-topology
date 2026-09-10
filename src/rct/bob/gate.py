@@ -61,6 +61,7 @@ class GateContext:
     evidence_views: tuple[EvidenceView, ...]
     retire_supported_edges: frozenset[EdgeIdentity]
     applied_proposal_ids: frozenset[str]
+    probe_rows_available: int
 
 
 @dataclass(frozen=True)
@@ -133,6 +134,8 @@ class StructuralGate:
         if c.kind is ActionKind.PROBE:
             if pressure.inquiry_qualifying_windows < 3:
                 return self._not_formable(c, "INQUIRY_PRESSURE_NOT_QUALIFIED")
+            if ctx.probe_rows_available < cfg.probe_window:
+                return self._not_formable(c, "PROBE_DATA_NOT_READY")
             if ctx.probe_budget_remaining <= 0:
                 return self._not_formable(c, "PROBE_BUDGET_EXHAUSTED")
             if self._duplicate_active_endpoint(ctx, c.source, c.target):
@@ -204,6 +207,8 @@ class StructuralGate:
         pressure = self._pressure(ctx, c.target)
         if pressure is None or pressure.revision_qualifying_windows < 3:
             return self._not_formable(c, "REVISION_PRESSURE_NOT_QUALIFIED")
+        if self._duplicate_active_endpoint(ctx, c.source, c.target):
+            return self._not_formable(c, "DUPLICATE_ACTIVE_ENDPOINT")
         handle = self._handle(ctx, c)
         if handle is None or handle.state is not HandleState.VALID:
             return self._not_formable(c, "INVALID_HANDLE")
