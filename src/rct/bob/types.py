@@ -55,6 +55,15 @@ class CandidateRelation:
 
 
 @dataclass(frozen=True)
+class ProbeAcquisitionWarrant:
+    warrant_id: str
+    source: NodeId
+    target: NodeId
+    created_step: int
+    expires_step: int
+
+
+@dataclass(frozen=True)
 class ProbeEvidence:
     evidence_id: str
     source: NodeId
@@ -65,6 +74,7 @@ class ProbeEvidence:
     cost: float
     created_step: int
     expires_step: int
+    warrant_ref: str | None = None
 
 
 @dataclass(frozen=True)

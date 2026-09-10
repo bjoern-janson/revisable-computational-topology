@@ -146,6 +146,7 @@ def relation_probe(
     registry: EvidenceRegistry,
     *,
     current_step: int,
+    warrant_ref: str,
     ridge_lambda: float = 1e-3,
     window: int = 256,
 ) -> ProbeEvidence:
@@ -172,6 +173,7 @@ def relation_probe(
         cost=cost,
         created_step=int(current_step),
         expires_step=int(current_step) + 64,
+        warrant_ref=str(warrant_ref),
     )
     registry.add(ev)
     return ev

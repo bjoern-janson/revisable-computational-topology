@@ -8,7 +8,7 @@ from .lineage import EdgeIdentity, StructuralLedger, StructuralTransaction
 from .probe import EvidenceRegistry
 from .types import (
     ActionCandidate, ActionKind, EdgeStatus, ExistingEdgeEvidence, GateDecision,
-    HandleState, NodeId, Operation, ProbeEvidence, ReopenEvidence, StructuralProposal,
+    HandleState, NodeId, Operation, ProbeAcquisitionWarrant, ProbeEvidence, ReopenEvidence, StructuralProposal,
 )
 
 
@@ -50,6 +50,12 @@ class EvidenceView:
 
 
 @dataclass(frozen=True)
+class WarrantView:
+    warrant: ProbeAcquisitionWarrant
+    consumed: bool
+
+
+@dataclass(frozen=True)
 class GateContext:
     t: int
     probe_budget_remaining: int
@@ -62,6 +68,7 @@ class GateContext:
     retire_supported_edges: frozenset[EdgeIdentity]
     applied_proposal_ids: frozenset[str]
     probe_rows_available: int
+    warrant_views: tuple[WarrantView, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -113,6 +120,20 @@ class StructuralGate:
             return None
         return view
 
+    def _warrant(self, ctx: GateContext, warrant_ref: str | None) -> WarrantView | None:
+        if warrant_ref is None:
+            return None
+        return next((w for w in ctx.warrant_views if w.warrant.warrant_id == warrant_ref), None)
+
+    def _usable_warrant(self, ctx: GateContext, warrant_ref: str | None) -> WarrantView | None:
+        view = self._warrant(ctx, warrant_ref)
+        if view is None or view.consumed:
+            return None
+        w = view.warrant
+        if not (w.created_step <= ctx.t <= w.expires_step):
+            return None
+        return view
+
     def _duplicate_active_endpoint(self, ctx: GateContext, source: NodeId, target: NodeId) -> bool:
         return any(
             e.identity.source == source and e.identity.target == target and e.status is EdgeStatus.ACTIVE
@@ -121,6 +142,22 @@ class StructuralGate:
 
     def _not_formable(self, c: ActionCandidate, reason: str) -> EligibilityPreview:
         return EligibilityPreview(c, False, reason)
+
+    def issue_probe_warrant(self, c: ActionCandidate, ctx: GateContext, registry):
+        if c.kind is not ActionKind.PROBE:
+            raise ValueError("PROBE_REQUIRED_FOR_WARRANT")
+        preview = self.preview(c, ctx)
+        if not preview.formable:
+            raise ValueError(preview.reason)
+        warrant = ProbeAcquisitionWarrant(
+            warrant_id=registry.next_id(),
+            source=c.source,
+            target=c.target,
+            created_step=ctx.t,
+            expires_step=ctx.t + self.config.structural_interval,
+        )
+        registry.add(warrant)
+        return warrant
 
     def preview(self, c: ActionCandidate, ctx: GateContext) -> EligibilityPreview:
         cfg = self.config
@@ -148,12 +185,18 @@ class StructuralGate:
             return self._not_formable(c, "MISSING_STALE_OR_CONSUMED_EVIDENCE")
         ev = ev_view.evidence
         if c.kind is ActionKind.CREATE:
-            if pressure.inquiry_qualifying_windows < 3:
-                return self._not_formable(c, "INQUIRY_PRESSURE_NOT_QUALIFIED")
             if not isinstance(ev, ProbeEvidence):
                 return self._not_formable(c, "WRONG_EVIDENCE_TYPE")
             if (ev.source, ev.target) != (c.source, c.target):
                 return self._not_formable(c, "EVIDENCE_ENDPOINT_MISMATCH")
+            warrant_view = self._usable_warrant(ctx, ev.warrant_ref)
+            if warrant_view is None:
+                return self._not_formable(c, "MISSING_STALE_OR_CONSUMED_WARRANT")
+            warrant = warrant_view.warrant
+            if (warrant.source, warrant.target) != (c.source, c.target):
+                return self._not_formable(c, "WARRANT_ENDPOINT_MISMATCH")
+            if warrant.created_step != ev.created_step:
+                return self._not_formable(c, "WARRANT_EVIDENCE_ISSUANCE_MISMATCH")
             if self._duplicate_active_endpoint(ctx, c.source, c.target):
                 return self._not_formable(c, "DUPLICATE_ACTIVE_ENDPOINT")
             charge = cfg.create_cost
@@ -253,7 +296,7 @@ class StructuralGate:
 
 
 def apply_accepted_proposal(graph: AdapterGraph, registry: EvidenceRegistry, ledger: StructuralLedger,
-                            proposal: StructuralProposal, decision: GateDecision) -> StructuralTransaction:
+                            proposal: StructuralProposal, decision: GateDecision, *, warrant_registry=None) -> StructuralTransaction:
     if not decision.allowed:
         raise ValueError("cannot apply rejected proposal")
     if ledger.proposal_applied(proposal.proposal_id):
@@ -261,6 +304,18 @@ def apply_accepted_proposal(graph: AdapterGraph, registry: EvidenceRegistry, led
     edit = proposal.edit
     before = graph.structural_fingerprint()
     reopen_handle_id = None
+    create_warrant_ref = None
+    if proposal.operation is Operation.CREATE:
+        if proposal.evidence_ref is None:
+            raise ValueError("CREATE requires probe evidence")
+        ev = registry.get(proposal.evidence_ref)
+        if not isinstance(ev, ProbeEvidence) or ev.warrant_ref is None:
+            raise ValueError("CREATE requires warrant-linked probe evidence")
+        if warrant_registry is None:
+            raise ValueError("CREATE requires warrant registry")
+        if warrant_registry.consumed(ev.warrant_ref):
+            raise ValueError("probe acquisition warrant already consumed")
+        create_warrant_ref = ev.warrant_ref
     if proposal.operation is Operation.CREATE:
         if edit.source is None or edit.target is None: raise ValueError("CREATE missing endpoints")
         graph.create(edit.source, edit.target)
@@ -280,6 +335,8 @@ def apply_accepted_proposal(graph: AdapterGraph, registry: EvidenceRegistry, led
         raise ValueError("unknown operation")
     if proposal.evidence_ref is not None:
         registry.consume(proposal.evidence_ref)
+    if create_warrant_ref is not None:
+        warrant_registry.consume(create_warrant_ref)
     tx = StructuralTransaction(
         transaction_id=f"T{len(ledger.transactions) + 1:06d}", proposal_id=proposal.proposal_id,
         operation=proposal.operation, graph_before=before, graph_after=graph.structural_fingerprint(),

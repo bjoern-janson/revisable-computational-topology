@@ -10,12 +10,13 @@ from .backbone import BobBackbone
 from .interfaces import AdapterGraph
 from .lineage import StructuralLedger,EdgeIdentity
 from .probe import ProbeBudget,LatentResidualBuffer,EvidenceRegistry,relation_probe
-from .gate import StructuralGate,GateContext,TargetPressure,EdgeView,HandleView,EvidenceView
+from .gate import StructuralGate,GateContext,TargetPressure,EdgeView,HandleView,EvidenceView,WarrantView
 from .manager import TopologyManager
 from .features import FeatureContext,signed_ratio
 from .valuation import ValuationLedger,LinearActionValuation
 from .metrics import CorrectiveAccessLedger,CorrectionRoute
 from .exploration import RetirementSupportGate,RetirementContextKey,SupportRow
+from .warrant import ProbeWarrantRegistry
 
 class ScientificExecutionNotAuthorized(RuntimeError): pass
 
@@ -28,7 +29,7 @@ class BobLifetime:
             wc=replace(self.world_config,w1_steps_min=100000,w1_steps_max=100000,w2_steps_min=1,w2_steps_max=1,w3_steps_min=1,w3_steps_max=1)
             self.world=RotatingDependencyWorld(wc)
         self.backbone=BobBackbone(self.world_config,self.bob_config); self.graph=AdapterGraph(self.bob_config.hidden_dim,self.bob_config.interface_max_rank,self.bob_config.interface_initial_rank,edge_lr=1e-3); self.backbone_opt=torch.optim.AdamW(self.backbone.parameters(),lr=3e-4)
-        self.registry=EvidenceRegistry(); self.structural_ledger=StructuralLedger(); self.probe_budget=ProbeBudget(self.bob_config.probes_per_window,self.bob_config.probe_cost); self.probe_buffer=LatentResidualBuffer(self.bob_config.probe_window); self.access=CorrectiveAccessLedger(); self.valuation_ledger=ValuationLedger(self.mkii_config.return_horizon_steps); self.valuation=LinearActionValuation(self.mkii_config.feature_dim,self.mkii_config.eta_ridge_lambda); self.gate=StructuralGate(self.bob_config); self.manager=TopologyManager(self.gate,self.mkii_config,self.valuation); self._retire_support_gate=RetirementSupportGate(self.mkii_config.retire_support_min_rows,self.mkii_config.retire_support_min_action_kinds); self._retire_support_rows=[]; self._retire_support_pending={}; self._related_history={}
+        self.registry=EvidenceRegistry(); self.warrants=ProbeWarrantRegistry(); self.structural_ledger=StructuralLedger(); self.probe_budget=ProbeBudget(self.bob_config.probes_per_window,self.bob_config.probe_cost); self.probe_buffer=LatentResidualBuffer(self.bob_config.probe_window); self.access=CorrectiveAccessLedger(); self.valuation_ledger=ValuationLedger(self.mkii_config.return_horizon_steps); self.valuation=LinearActionValuation(self.mkii_config.feature_dim,self.mkii_config.eta_ridge_lambda); self.gate=StructuralGate(self.bob_config); self.manager=TopologyManager(self.gate,self.mkii_config,self.valuation); self._retire_support_gate=RetirementSupportGate(self.mkii_config.retire_support_min_rows,self.mkii_config.retire_support_min_action_kinds); self._retire_support_rows=[]; self._retire_support_pending={}; self._related_history={}
         self.recorder=TrajectoryRecorder(output_dir)
         self.module_ema={n:{'local':0.0,'full':0.0} for n in NODE_IDS}; self._window_local={n:[] for n in NODE_IDS}; self._prev_window_local={n:None for n in NODE_IDS}; self._inq_q={n:0 for n in NODE_IDS}; self._rev_q={n:0 for n in NODE_IDS}; self._pressures={n:(0.0,0.0) for n in NODE_IDS}; self._decision_index=0; self._cooldown=0; self.cost_history=[]; self.last_preupdate_encoder_fingerprint=''; self._last_action_meta={}
     def encoder_fingerprint(self):
@@ -68,11 +69,12 @@ class BobLifetime:
         edges=tuple(EdgeView(e.identity,e.status,e.active_rank,self.graph.max_rank,e.age,e.usage_ema,e.contribution_ema) for e in self.graph.edges())
         hs=tuple(HandleView(h.handle_id,h.identity,h.dormancy_version,h.state,h.historical_support,h.reopening_liability,h.snapshot.active_rank) for h in self.graph.handles())
         evs=tuple(EvidenceView(ev,self.registry.consumed(ev.evidence_id)) for ev in self.registry.items())
+        wvs=tuple(WarrantView(w,self.warrants.consumed(w.warrant_id)) for w in self.warrants.items())
         retire_supported=frozenset(
             e.identity for e in self.graph.active_edges()
             if self._retire_support_gate.supported(self._retirement_key(e),self._retire_support_rows)
         )
-        return GateContext(t,self.probe_budget.remaining,self.bob_config.edit_budget_per_window,self._cooldown,ps,edges,hs,evs,retire_supported,frozenset(tx.proposal_id for tx in self.structural_ledger.transactions),probe_rows_available=len(self.probe_buffer))
+        return GateContext(t,self.probe_budget.remaining,self.bob_config.edit_budget_per_window,self._cooldown,ps,edges,hs,evs,retire_supported,frozenset(tx.proposal_id for tx in self.structural_ledger.transactions),probe_rows_available=len(self.probe_buffer),warrant_views=wvs)
 
     @staticmethod
     def _commitment_id(identity):
@@ -233,13 +235,15 @@ class BobLifetime:
         probe=edit=reopen=0.0
         self._last_action_meta={
             'proposal_id':None,'gate_reason':None,'gate_allowed':None,
-            'transaction_id':None,'evidence_id':None,
+            'transaction_id':None,'evidence_id':None,'warrant_id':None,
         }
         route_id=self._route_id_for_candidate(c)
         if c.kind is ActionKind.PROBE:
-            ev=relation_probe(CandidateRelation(c.source,c.target),self.probe_buffer,self.probe_budget,self.registry,current_step=ctx.t)
+            warrant=self.gate.issue_probe_warrant(c,ctx,self.warrants)
+            ev=relation_probe(CandidateRelation(c.source,c.target),self.probe_buffer,self.probe_budget,self.registry,current_step=ctx.t,warrant_ref=warrant.warrant_id)
             probe=ev.cost
             self._last_action_meta['evidence_id']=ev.evidence_id
+            self._last_action_meta['warrant_id']=warrant.warrant_id
             self._note_related(c,ctx.t,None)
         elif c.kind is not ActionKind.ABSTAIN:
             op={
@@ -264,7 +268,7 @@ class BobLifetime:
             self._note_related(c,ctx.t,dec.allowed)
             if dec.allowed:
                 from .gate import apply_accepted_proposal
-                tx=apply_accepted_proposal(self.graph,self.registry,self.structural_ledger,proposal,dec)
+                tx=apply_accepted_proposal(self.graph,self.registry,self.structural_ledger,proposal,dec,warrant_registry=self.warrants)
                 self._last_action_meta['transaction_id']=tx.transaction_id
                 self._cooldown=1
                 if route_id is not None:
@@ -367,6 +371,7 @@ class BobLifetime:
             'gate_allowed':self._last_action_meta.get('gate_allowed'),
             'transaction_id':self._last_action_meta.get('transaction_id'),
             'evidence_id':self._last_action_meta.get('evidence_id'),
+            'warrant_id':self._last_action_meta.get('warrant_id'),
         }
         self.recorder.append(record)
         self.step_count+=1; return {'step':t,'loss':float(losses.full.detach())}

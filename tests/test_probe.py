@@ -45,11 +45,12 @@ def test_relation_probe_is_pair_specific_useful_and_nonpersistent():
     buf = make_buffer()
     budget = ProbeBudget(max_probes=2, cost_per_probe=0.02)
     registry = EvidenceRegistry()
-    ev = relation_probe(CandidateRelation("A", "B"), buf, budget, registry, current_step=256)
+    ev = relation_probe(CandidateRelation("A", "B"), buf, budget, registry, current_step=256, warrant_ref="W000001")
     assert isinstance(ev, ProbeEvidence)
     assert (ev.source, ev.target) == ("A", "B")
     assert ev.gain > 0.1
     assert ev.expires_step == 320
+    assert ev.warrant_ref == "W000001"
     assert budget.remaining == 1
     assert not hasattr(ev, "model")
     assert registry.get(ev.evidence_id) == ev
