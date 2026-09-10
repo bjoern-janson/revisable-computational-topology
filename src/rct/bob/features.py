@@ -1,8 +1,8 @@
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 import torch
 from .gate import EligibilityPreview
-from .types import ActionCandidate,ActionKind
+from .types import ActionCandidate,ActionKind,ProbeEvidence,ExistingEdgeEvidence,ReopenEvidence,HandleState,NODE_IDS
 FEATURE_NAMES=(
 'bias','pressure_ratio','contribution_ratio','usage_ema','probe_gain_ratio','evidence_freshness','rank_fraction','probe_budget_fraction','edit_budget_fraction',
 'probe_charge_fraction','edit_charge_fraction','maintenance_delta_fraction','reopen_liability_fraction','total_immediate_charge_fraction',
@@ -74,26 +74,78 @@ class FutureDryRun:
     formable_nonretire_class_count:int
     produces_evidence:bool
 
+def _formable_nonretire_classes(gate,ctx)->set[ActionKind]:
+    """Derive currently formable non-RETIRE classes from typed public metadata."""
+    classes={ActionKind.ABSTAIN}
+    active={(e.identity.source,e.identity.target) for e in ctx.edge_views if e.status.value=='ACTIVE'}
+    for source in NODE_IDS:
+        for target in NODE_IDS:
+            if source==target or (source,target) in active:
+                continue
+            c=ActionCandidate(f'DRY:PROBE:{source}->{target}',ActionKind.PROBE,source,target)
+            if gate.preview_any(c,ctx).formable:
+                classes.add(ActionKind.PROBE)
+                break
+        if ActionKind.PROBE in classes:
+            break
+    for evv in ctx.evidence_views:
+        if evv.consumed or not isinstance(evv.evidence,ProbeEvidence):
+            continue
+        ev=evv.evidence
+        c=ActionCandidate(f'DRY:CREATE:{ev.evidence_id}',ActionKind.CREATE,ev.source,ev.target,evidence_ref=ev.evidence_id)
+        if gate.preview_any(c,ctx).formable:
+            classes.add(ActionKind.CREATE)
+            break
+    for edge in ctx.edge_views:
+        if edge.status.value!='ACTIVE':
+            continue
+        matches=[v.evidence for v in ctx.evidence_views if not v.consumed and isinstance(v.evidence,ExistingEdgeEvidence)
+                 and (v.evidence.source,v.evidence.target,v.evidence.generation)==(edge.identity.source,edge.identity.target,edge.identity.generation)]
+        if not matches:
+            continue
+        ev=matches[-1]
+        specs=((ActionKind.MODIFY_UP,1),(ActionKind.MODIFY_DOWN,-1),(ActionKind.DORMANT,0))
+        for kind,delta in specs:
+            c=ActionCandidate(f'DRY:{kind.value}:{edge.identity}:{ev.evidence_id}',kind,edge.identity.source,edge.identity.target,edge.identity.generation,evidence_ref=ev.evidence_id,rank_delta=delta)
+            if gate.preview_any(c,ctx).formable:
+                classes.add(kind)
+    for handle in ctx.handle_views:
+        if handle.state is not HandleState.VALID:
+            continue
+        matches=[v.evidence for v in ctx.evidence_views if not v.consumed and isinstance(v.evidence,ReopenEvidence) and v.evidence.handle_id==handle.handle_id]
+        if not matches:
+            continue
+        ev=matches[-1]
+        c=ActionCandidate(f'DRY:REOPEN:{handle.handle_id}',ActionKind.REOPEN,handle.identity.source,handle.identity.target,handle.identity.generation,handle.dormancy_version,handle.handle_id,ev.evidence_id)
+        if gate.preview_any(c,ctx).formable:
+            classes.add(ActionKind.REOPEN)
+    return classes
+
+
 def future_dry_run(candidate:ActionCandidate, gate, ctx, *, route_count:int, retained_before:float|None, reachable_before:float|None)->FutureDryRun:
-    """Deterministic metadata-only one-action dry run."""
+    """Deterministic metadata-only one-action dry run.
+
+    This function accepts only manager/gate metadata. It cannot inspect a world,
+    execute a neural rollout, or obtain a future probe answer.
+    """
     preview=gate.preview_any(candidate,ctx)
+    current_valid=sum(1 for h in ctx.handle_views if h.state is HandleState.VALID)
     if not preview.formable:
-        return FutureDryRun(ctx.cooldown_remaining,ctx.probe_budget_remaining,ctx.edit_budget_remaining,sum(1 for h in ctx.handle_views if h.state.value=='VALID'),retained_before,reachable_before,1,False)
+        return FutureDryRun(ctx.cooldown_remaining,ctx.probe_budget_remaining,ctx.edit_budget_remaining,current_valid,retained_before,reachable_before,len(_formable_nonretire_classes(gate,ctx)),False)
     structural=candidate.kind in {ActionKind.CREATE,ActionKind.MODIFY_UP,ActionKind.MODIFY_DOWN,ActionKind.DORMANT,ActionKind.RETIRE,ActionKind.REOPEN}
     cooldown_after=1 if structural else ctx.cooldown_remaining
     probe_after=max(0,ctx.probe_budget_remaining-(1 if candidate.kind is ActionKind.PROBE else 0))
     edit_after=max(0.0,ctx.edit_budget_remaining-preview.edit_charge-preview.reopen_liability)
-    valid=sum(1 for h in ctx.handle_views if h.state.value=='VALID')
+    valid=current_valid
     if candidate.kind is ActionKind.DORMANT:
         valid+=1
     elif candidate.kind is ActionKind.REOPEN:
         valid=max(0,valid-1)
     elif candidate.kind is ActionKind.RETIRE and candidate.generation is not None:
-        valid-=sum(1 for h in ctx.handle_views if h.state.value=='VALID' and h.identity.source==candidate.source and h.identity.target==candidate.target and h.identity.generation==candidate.generation)
+        valid-=sum(1 for h in ctx.handle_views if h.state is HandleState.VALID and h.identity.source==candidate.source and h.identity.target==candidate.target and h.identity.generation==candidate.generation)
         valid=max(0,valid)
     retained_after=retained_before
     reachable_after=(0.0 if structural and route_count>0 else reachable_before)
-    classes=1
-    if probe_after>0 and ctx.probe_rows_available>=256 and any(p.inquiry_qualifying_windows>=3 for p in ctx.pressures):
-        classes+=1
-    return FutureDryRun(cooldown_after,probe_after,edit_after,valid,retained_after,reachable_after,classes,candidate.kind is ActionKind.PROBE)
+    post_ctx=replace(ctx,probe_budget_remaining=probe_after,edit_budget_remaining=edit_after,cooldown_remaining=cooldown_after)
+    classes=_formable_nonretire_classes(gate,post_ctx)
+    return FutureDryRun(cooldown_after,probe_after,edit_after,valid,retained_after,reachable_after,len(classes),candidate.kind is ActionKind.PROBE)
